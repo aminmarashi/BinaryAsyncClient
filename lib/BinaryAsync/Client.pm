@@ -51,6 +51,12 @@ sub request {
     });
 }
 
+sub await_request {
+    my ($self, $msg) = @_;
+
+    return $self->loop->await($self->request($msg))->get;
+}
+
 sub create_medium_and_send {
     my ($self, $msg) = @_;
 
