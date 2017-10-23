@@ -7,9 +7,10 @@ use Data::Dumper;
 
 my $loop = IO::Async::Loop->new;
 my $ws_client = BinaryAsync::Consumer->new(
-    loop => $loop,
-    url => 'wss://ws.binaryws.com/websockets/v3?l=EN&app_id=1'
+    uri => 'wss://ws.binaryws.com/websockets/v3?l=EN&app_id=1'
 );
+
+$loop->add($ws_client);
 
 my $req = {
     proposal      => 1,

@@ -10,31 +10,37 @@ sub new {
     my ($class, $msg) = @_;
 
     my $self = {};
+    bless $self, $class;
 
-    $self->{receiver} = $msg->{subscribe} ? Ryu::Observable->new : Future->new;
+    $self->{subscribe} = $msg->{subscribe};
 
-    return bless $self, $class;
+    $self->{receiver} = $self->subscribe ? Ryu::Observable->new : Future->new;
+
+    return $self;
 }
 
 sub dispatch {
     my ($self, $msg) = @_;
-    
-    my $receiver = $self->{receiver};
-    return handle_future($receiver, $msg) if ref $receiver eq 'Future';
 
-    return $receiver->set($msg);
+    return $self->handle_future($msg) unless $self->subscribe;
+
+    return $self->receiver->set($msg);
 }
 
 sub handle_future {
-    my ($future, $msg) = @_;
+    my ($self, $msg) = @_;
 
     if ($msg->{error}) {
-        $future->fail($msg);
+        $self->receiver->fail($msg);
     } else {
-        $future->done($msg);
+        $self->receiver->done($msg);
     }
 
     return;
 }
+
+sub receiver { shift->{receiver} };
+
+sub subscribe { shift->{subscribe} };
 
 1;
