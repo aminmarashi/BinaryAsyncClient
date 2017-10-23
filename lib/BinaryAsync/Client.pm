@@ -51,12 +51,6 @@ sub request {
     });
 }
 
-sub await_request {
-    my ($self, $msg) = @_;
-
-    return $self->loop->await($self->request($msg))->get;
-}
-
 sub create_medium_and_send {
     my ($self, $msg) = @_;
 
@@ -121,6 +115,26 @@ sub recv_mediums { shift->{recv_mediums} //= {} }
 sub uri { shift->{uri} }
 
 sub req_id { ++shift->{req_id} }
+
+use vars '$AUTOLOAD';
+
+sub AUTOLOAD {
+    my ($self, $msg) = @_;
+
+    return if $AUTOLOAD !~ /.*::await_([^:]+)/;
+
+    my $await_future = $self->loop->await($self->request($msg));
+
+    my $response;
+    eval {
+        $response = $await_future->get->{$1};
+    } or do {
+        $response = $await_future->failure;
+    };
+
+    return $response;
+}
+
 
 1;
 

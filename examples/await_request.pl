@@ -22,7 +22,7 @@ my $req = {
 };
 
 
-my $proposal = $ws_client->await_request($req);
+my $proposal = $ws_client->await_proposal($req);
 
 warn Dumper $proposal;
 
