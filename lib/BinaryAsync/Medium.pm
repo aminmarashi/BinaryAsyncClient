@@ -1,4 +1,4 @@
-package Medium;
+package BinaryAsync::Medium;
 
 use strict;
 use warnings;

@@ -1,12 +1,12 @@
 use strict;
 use warnings;
 
-use BinaryAsyncConsumer;
+use BinaryAsync::Consumer;
 use IO::Async::Loop;
 use Data::Dumper; 
 
 my $loop = IO::Async::Loop->new;
-my $ws_client = BinaryAsyncConsumer->new(
+my $ws_client = BinaryAsync::Consumer->new(
     loop => $loop,
     url => 'wss://ws.binaryws.com/websockets/v3?l=EN&app_id=1'
 );

@@ -1,9 +1,9 @@
-package BinaryAsyncConsumer;
+package BinaryAsync::Consumer;
 
 use strict;
 use warnings;
 
-use Medium;
+use BinaryAsync::Medium;
 
 use IO::Async::SSL;
 use Net::Async::WebSocket::Client;
@@ -14,8 +14,6 @@ use curry;
 use URI;
 
 my $json = JSON::MaybeXS->new;
-
-sub dumper { use Data::Dumper; warn Dumper shift };
 
 sub new {
     my ($class, %args) = @_;
@@ -70,7 +68,7 @@ sub subscribe {
 sub create_medium_and_send {
     my ($self, $msg) = @_;
 
-    my $receive_medium = Medium->new($msg);
+    my $receive_medium = BinaryAsync::Medium->new($msg);
     $self->{receive_medium}->{$msg->{req_id}} = $receive_medium; 
 
     $self->{client}->send_frame($json->encode($msg));
