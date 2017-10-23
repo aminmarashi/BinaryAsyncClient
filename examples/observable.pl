@@ -1,18 +1,18 @@
 use strict;
 use warnings;
 
-use BinaryAsync::Consumer;
+use BinaryAsync::Client;
 use IO::Async::Loop;
 use Data::Dumper;
 
 my $loop = IO::Async::Loop->new;
-my $ws_client = BinaryAsync::Consumer->new(uri => 'wss://ws.binaryws.com/websockets/v3?l=EN&app_id=1');
+my $ws_client = BinaryAsync::Client->new(uri => 'wss://ws.binaryws.com/websockets/v3?l=EN&app_id=1');
 
 $loop->add($ws_client);
 
 my $req = {
     proposal      => 1,
-    subscribe     => 1,
+    subscribe     => 1, # causes request to return an observable
     amount        => 100,
     basis         => 'payout',
     currency      => 'USD',

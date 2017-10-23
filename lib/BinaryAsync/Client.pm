@@ -1,4 +1,4 @@
-package BinaryAsync::Consumer;
+package BinaryAsync::Client;
 
 use strict;
 use warnings;
