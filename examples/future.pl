@@ -4,6 +4,7 @@ use warnings;
 use BinaryAsyncConsumer;
 use IO::Async::Loop;
 use Variable::Disposition qw(retain_future);
+use Data::Dumper;
 
 my $loop = IO::Async::Loop->new;
 my $ws_client = BinaryAsyncConsumer->new(
@@ -13,7 +14,6 @@ my $ws_client = BinaryAsyncConsumer->new(
 
 my $req = {
     proposal      => 1,
-    subscribe     => 1,
     amount        => 100,
     basis         => 'payout',
     currency      => 'USD',
@@ -23,8 +23,10 @@ my $req = {
     duration_unit => 'm'
 };
 
-my $subscription = sub { use Data::Dumper; warn Dumper shift };
-$ws_client->request($req)->subscribe($subscription);
+retain_future($ws_client->request($req)->then(sub {
+    warn Dumper shift;
+    $loop->stop;
+}));
 
 $loop->run;
 
