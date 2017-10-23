@@ -6,6 +6,7 @@ use warnings;
 use parent qw(IO::Async::Notifier);
 
 use BinaryAsync::Medium;
+use BinaryAsync::Timeout;
 
 use IO::Async::SSL;
 use Net::Async::WebSocket::Client;
@@ -15,6 +16,7 @@ use JSON::MaybeXS;
 use Encode;
 use curry;
 use URI;
+use Future;
 
 my $json = JSON::MaybeXS->new;
 
@@ -49,6 +51,46 @@ sub request {
         %{$msg},
         req_id => $self->req_id,
     });
+}
+
+sub subscribe {
+    my ($self, $msg) = @_;
+
+    return $self->request({%{$msg}, subscribe => 1});
+}
+
+sub wait_until_finished {
+    my ($self, %args) = @_;
+
+    my $request     = $args{request};
+    my $is_finished = $args{is_finished};
+    my $on_response = $args{on_response};
+    my $timeout     = $args{timeout};
+
+    my $stall_timeout = BinaryAsync::Timeout->new(timeout => $args{stall_timeout});
+    $self->loop->add($stall_timeout);
+
+    $stall_timeout->reset;
+
+    my $subscription;
+    my $subscribed;
+    my $subscription_future = $self->loop->new_future;
+    $subscribed = $self->subscribe($request)->subscribe(
+        $subscription = sub {
+            my $response = shift;
+
+            $stall_timeout->reset;
+
+            $on_response->($response);
+
+            return unless $is_finished->($response);
+
+            $stall_timeout->cancel;
+            $subscribed->unsubscribe($subscription);
+            $subscription_future->done($response);
+        });
+
+    return Future->wait_any($self->loop->timeout_future(after => $timeout), $stall_timeout->timeout_future, $subscription_future,);
 }
 
 sub create_medium_and_send {
@@ -126,16 +168,13 @@ sub AUTOLOAD {
     my $await_future = $self->loop->await($self->request($msg));
 
     my $response;
-    eval {
-        $response = $await_future->get->{$1};
-    } or do {
+    eval { $response = $await_future->get->{$1} } or do {
         use Data::Dumper;
         die Dumper $await_future->failure;
     };
 
     return $response;
 }
-
 
 1;
 
