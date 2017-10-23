@@ -129,7 +129,8 @@ sub AUTOLOAD {
     eval {
         $response = $await_future->get->{$1};
     } or do {
-        $response = $await_future->failure;
+        use Data::Dumper;
+        die Dumper $await_future->failure;
     };
 
     return $response;
