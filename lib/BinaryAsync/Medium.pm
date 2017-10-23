@@ -39,8 +39,8 @@ sub handle_future {
     return;
 }
 
-sub receiver { shift->{receiver} };
+sub receiver { shift->{receiver} }
 
-sub subscribe { shift->{subscribe} };
+sub subscribe { shift->{subscribe} }
 
 1;

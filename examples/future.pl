@@ -7,9 +7,7 @@ use Variable::Disposition qw(retain_future);
 use Data::Dumper;
 
 my $loop = IO::Async::Loop->new;
-my $ws_client = BinaryAsync::Consumer->new(
-    uri => 'wss://ws.binaryws.com/websockets/v3?l=EN&app_id=1'
-);
+my $ws_client = BinaryAsync::Consumer->new(uri => 'wss://ws.binaryws.com/websockets/v3?l=EN&app_id=1');
 
 $loop->add($ws_client);
 
@@ -24,10 +22,12 @@ my $req = {
     duration_unit => 'm'
 };
 
-retain_future($ws_client->request($req)->then(sub {
-    warn Dumper shift;
-    $loop->stop;
-}));
+retain_future(
+    $ws_client->request($req)->then(
+        sub {
+            warn Dumper shift;
+            $loop->stop;
+        }));
 
 $loop->run;
 
