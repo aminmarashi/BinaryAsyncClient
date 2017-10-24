@@ -27,6 +27,7 @@ sub connection {
         my $ws_uri = $self->uri or die 'no websocket URI available';
 
         my $uri = URI->new($ws_uri);
+        my $port = $uri->port || ($uri->scheme eq 'wss' ? 443 : 80);
 
         $self->{client}->connect(
             url  => $ws_uri,
@@ -34,12 +35,12 @@ sub connection {
             (
                 $uri->scheme eq 'wss'
                 ? (
-                    service      => 443,
+                    service      => $port,
                     extensions   => [qw(SSL)],
                     SSL_hostname => $uri->host,
                     )
                 : (
-                    service => 80,
+                    service => $port,
                 )));
     };
 }
