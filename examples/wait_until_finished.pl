@@ -12,7 +12,7 @@ my $ws_client = BinaryAsync::Client->new(uri => 'wss://ws.binaryws.com/websocket
 
 $loop->add($ws_client);
 
-$ws_client->await_authorize({authorize => 'a1-280TTdKJ6nmCBZl3Qi1UYyEAe9dZj'});
+$ws_client->await_authorize({authorize => 'SomeToken'});
 
 while(1) {
     my $proposal = $ws_client->await_proposal({
